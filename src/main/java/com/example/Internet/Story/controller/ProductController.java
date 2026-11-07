@@ -8,6 +8,7 @@ import com.example.Internet.Story.service.CategoryService;
 import com.example.Internet.Story.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -151,14 +152,14 @@ public class ProductController {
                 .collect(Collectors.toList());
     }
 //Загрузить продукт
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ProductDto post(@Valid @RequestBody ProductDto productDto){
         Product product = productMapper.toEntity(productDto);
         Product save = productService.postProduct(product);
         return productMapper.toDto(save);
     }
 //Обновить продукт
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ProductDto put(@PathVariable Long id, @Valid @RequestBody ProductDto productDto){
         Product product = productMapper.toEntity(productDto);
         Product save = productService.putProduct(id, product);

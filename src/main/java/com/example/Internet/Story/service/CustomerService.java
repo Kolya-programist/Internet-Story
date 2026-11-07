@@ -5,6 +5,7 @@ import com.example.Internet.Story.exception.CustomerNotFoundException;
 import com.example.Internet.Story.repository.CustomerRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -15,9 +16,11 @@ import java.util.stream.Collectors;
 @Service
 public class CustomerService {
     private final CustomerRepository customerRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public CustomerService(CustomerRepository customerRepository) {
+    public CustomerService(CustomerRepository customerRepository, PasswordEncoder passwordEncoder) {
         this.customerRepository = customerRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
 //Найти всех покупателей
@@ -55,6 +58,10 @@ public class CustomerService {
 //Загрузить покупателя
     @Transactional
     public Customer postCustomer(Customer customer){
+        customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+
+            customer.setRole("USER");
+
         Customer saved = customerRepository.save(customer);
         log.info("Покупатель {} загружен", saved.getId());
         return saved;
@@ -79,5 +86,14 @@ public class CustomerService {
                 .orElseThrow(() -> new CustomerNotFoundException(id));
         customerRepository.deleteById(id);
         log.info("Покупатель {} удален", id);
+    }
+
+//Админ может присвоить обычному пользователю роль админа
+    @Transactional
+    public void makeAdmin(Long id){
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new CustomerNotFoundException(id));
+        customer.setRole("ADMIN");
+        customerRepository.save(customer);
     }
 }

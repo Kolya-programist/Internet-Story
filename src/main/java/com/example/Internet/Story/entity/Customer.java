@@ -16,14 +16,17 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String role;
+
     private String name;
 
     @Column(unique = true)
     private String email;
 
+    private String password;
+
     private String address;
 
     @OneToMany(mappedBy = "customer")
     private List<Order> orders;
-
 }

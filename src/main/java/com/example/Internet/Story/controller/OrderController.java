@@ -7,6 +7,7 @@ import com.example.Internet.Story.entity.OrderStatus;
 import com.example.Internet.Story.mapper.OrderMapper;
 import com.example.Internet.Story.service.CustomerService;
 import com.example.Internet.Story.service.OrderService;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -111,14 +112,14 @@ public class OrderController {
                 .collect(Collectors.toList());
     }
 //Загрузить заказ
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public OrderDto post(@RequestBody OrderDto orderDto){
         Order order = orderMapper.toEntity(orderDto);
         Order save = orderService.postOrder(order);
         return orderMapper.toDto(save);
     }
 //Обновить заказ
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public OrderDto put(@PathVariable Long id, @RequestBody OrderDto orderDto){
         Order order = orderMapper.toEntity(orderDto);
         Order save = orderService.putOrder(id, order);

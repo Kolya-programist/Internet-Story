@@ -4,6 +4,7 @@ import com.example.Internet.Story.dto.CustomerDto;
 import com.example.Internet.Story.entity.Customer;
 import com.example.Internet.Story.mapper.CustomerMapper;
 import com.example.Internet.Story.service.CustomerService;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,14 +54,14 @@ public class CustomerController {
         return customerMapper.toDto(customerService.getByEmail(email));
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public CustomerDto post(@RequestBody CustomerDto customerDto) {
         Customer customer = customerMapper.toEntity(customerDto);
         Customer save = customerService.postCustomer(customer);
         return customerMapper.toDto(save);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public CustomerDto put(@PathVariable Long id, @RequestBody CustomerDto customerDto){
         Customer customer = customerMapper.toEntity(customerDto);
         Customer save = customerService.putCustomer(id, customer);
@@ -73,4 +74,10 @@ public class CustomerController {
         customerService.deleteCustomer(id);
         return customerMapper.toDto(customer);
     }
+
+    @PutMapping("/{id}/make-admin")
+    public void makeAdmin(@PathVariable Long id){
+        customerService.makeAdmin(id);
+    }
+
 }

@@ -4,6 +4,7 @@ import com.example.Internet.Story.entity.Category;
 import com.example.Internet.Story.dto.CategoryDto;
 import com.example.Internet.Story.mapper.CategoryMapper;
 import com.example.Internet.Story.service.CategoryService;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -65,14 +66,14 @@ public class CategoryController {
                 .collect(Collectors.toList());
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public CategoryDto post(@RequestBody CategoryDto categoryDto){
         Category category = categoryMapper.toEntity(categoryDto);
         Category save = categoryService.postCategory(category);
         return categoryMapper.toDto(save);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public CategoryDto put(@PathVariable Long id, @RequestBody CategoryDto categoryDto){
         Category category = categoryMapper.toEntity(categoryDto);
         Category save = categoryService.putCategory(id, category);

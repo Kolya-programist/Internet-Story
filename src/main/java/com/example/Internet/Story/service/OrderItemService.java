@@ -47,7 +47,7 @@ public class OrderItemService {
     }
 //Найти позиции по заказу
     public List<OrderItem> getOrderItemByOrder(Order order){
-        return orderItemRepository.findByOrder(order);
+        return orderItemRepository.findByOrderWithProduct(order);
     }
 
 //Найти позиции по продукту

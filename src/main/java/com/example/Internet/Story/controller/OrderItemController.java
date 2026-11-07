@@ -9,6 +9,7 @@ import com.example.Internet.Story.service.OrderItemService;
 import com.example.Internet.Story.service.OrderService;
 import com.example.Internet.Story.service.ProductService;
 import jakarta.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -79,14 +80,20 @@ public class OrderItemController {
                 .collect(Collectors.toList());
     }
 //Загрузить позицию
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public OrderItemDto post(@Valid @RequestBody OrderItemDto orderItemDto){
+        Order order = orderService.getOrderById(orderItemDto.getOrderId());
+        Product product = productService.getProductById(orderItemDto.getProductId());
+
         OrderItem orderItem = orderItemMapper.toEntity(orderItemDto);
+        orderItem.setOrder(order);
+        orderItem.setProduct(product);
+
         OrderItem save = orderItemService.postOrderItem(orderItem);
         return orderItemMapper.toDto(save);
     }
 //Обновить позицию
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public OrderItemDto put(@PathVariable Long id, @Valid @RequestBody OrderItemDto orderItemDto){
         OrderItem orderItem = orderItemMapper.toEntity(orderItemDto);
         OrderItem save = orderItemService.putOrderItem(id, orderItem);

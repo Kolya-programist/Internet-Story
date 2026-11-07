@@ -35,4 +35,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleCategoryNotFound(CategoryNotFoundException e){
         return ResponseEntity.status(404).body(e.getMessage());
     }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<String> handleUserNotFound(UserNotFoundException e){
+        return ResponseEntity.status(404).body(e.getMessage());
+    }
+
+    @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+    public org.springframework.http.ResponseEntity<String> handleBadCredentials(org.springframework.security.authentication.BadCredentialsException e) {
+        return org.springframework.http.ResponseEntity.status(401).body("Неверный email или пароль");
+    }
 }
