@@ -172,10 +172,4 @@ public class ProductController {
         productService.deleteProduct(id);
         return productMapper.toDto(product);
     }
-
-    @GetMapping("/test-lost-update/{id}")
-    public String testLostUpdate(@PathVariable Long id) {
-        productService.testLostUpdate(id);
-        return "Готово";
-    }
 }
