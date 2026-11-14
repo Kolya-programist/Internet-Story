@@ -8,10 +8,10 @@ import com.example.Internet.Story.entity.Product;
 import com.example.Internet.Story.exception.ProductsEmptyException;
 import com.example.Internet.Story.repository.CategoryRepository;
 import com.example.Internet.Story.repository.ProductRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Isolation;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
@@ -180,5 +180,24 @@ public class ProductService {
                 .orElseThrow(() -> new ProductNotFoundException(id));
         productRepository.deleteById(id);
         log.info("Продукт {} удален", id);
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void testLostUpdate(Long productId) {
+        // 1. Читаем продукт
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        // 2. Запоминаем старое количество
+        int oldQuantity = product.getQuantity();
+
+        // 3. Искусственная задержка (чтобы второй поток успел прочитать то же самое)
+        try { Thread.sleep(2000); } catch (InterruptedException e) {}
+
+        // 4. Обновляем количество (прибавляем 1)
+        product.setQuantity(oldQuantity + 1);
+        productRepository.save(product);
+
+        System.out.println("Поток обновил продукт. Было: " + oldQuantity + ", стало: " + product.getQuantity());
     }
 }

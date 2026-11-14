@@ -5,6 +5,7 @@ import com.example.Internet.Story.entity.Customer;
 import com.example.Internet.Story.mapper.CustomerMapper;
 import com.example.Internet.Story.service.CustomerService;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ public class CustomerController {
         this.customerMapper = customerMapper;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public List<CustomerDto> getAll(){
         return customerService.getAllCustomers()
@@ -68,6 +70,7 @@ public class CustomerController {
         return customerMapper.toDto(save);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public CustomerDto delete(@PathVariable Long id){
         Customer customer = customerService.getCustomerById(id);

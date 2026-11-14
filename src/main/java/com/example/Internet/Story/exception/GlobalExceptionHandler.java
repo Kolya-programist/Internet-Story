@@ -1,8 +1,11 @@
 package com.example.Internet.Story.exception;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.dao.CannotAcquireLockException;
+
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -41,8 +44,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(404).body(e.getMessage());
     }
 
-    @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
-    public org.springframework.http.ResponseEntity<String> handleBadCredentials(org.springframework.security.authentication.BadCredentialsException e) {
-        return org.springframework.http.ResponseEntity.status(401).body("Неверный email или пароль");
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<String> handleBadCredentials(BadCredentialsException e) {
+        return ResponseEntity.status(401).body("Неверный email или пароль");
+    }
+
+    @ExceptionHandler(CannotAcquireLockException.class)
+    public ResponseEntity<String> handleLockException(CannotAcquireLockException e) {
+        return ResponseEntity.status(409).body("Данные устарели. Пожалуйста, обновите страницу и попробуйте снова.");
     }
 }

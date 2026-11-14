@@ -2,13 +2,15 @@ package com.example.Internet.Story.config.service;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
 @Service
 public class JwtService {
-    private final String secretKey = "77cadcf58a6a438bac3196d28e3485f841fb9b4022534f1eae6adf75ak4";
+    @Value("${jwt.secret}")
+    private String secretKey;
 
     public String generateToken(String email, String role) {
         return Jwts.builder()

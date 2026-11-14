@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -94,6 +95,25 @@ public class CustomerService {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new CustomerNotFoundException(id));
         customer.setRole("ADMIN");
+        customerRepository.save(customer);
+    }
+
+    @Transactional
+    public void increaseFailedAttempts(Customer customer){
+        int newFailAttempts = customer.getFailedAttempts() + 1;
+        customer.setFailedAttempts(newFailAttempts);
+
+        if(newFailAttempts >= 5){
+            customer.setLockTime(LocalDateTime.now().plusMinutes(1));
+        }
+
+        customerRepository.save(customer);
+    }
+
+    @Transactional
+    public void resetFailedAttempts(Customer customer){
+        customer.setFailedAttempts(0);
+        customer.setLockTime(null);
         customerRepository.save(customer);
     }
 }

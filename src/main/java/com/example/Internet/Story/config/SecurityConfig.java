@@ -1,5 +1,7 @@
 package com.example.Internet.Story.config; // ТВОЙ ПАКЕТ
 
+import com.example.Internet.Story.config.custom.CustomAccessDeniedHandler;
+import com.example.Internet.Story.config.custom.CustomAuthenticationEntryPoint;
 import com.example.Internet.Story.config.filter.JwtAuthenticationFilter;
 import com.example.Internet.Story.config.filter.RequestLoggingFilter;
 import com.example.Internet.Story.config.service.CustomUserDetailsService;
@@ -10,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -20,21 +23,30 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final RequestLoggingFilter requestLoggingFilter;
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
-    public SecurityConfig(RequestLoggingFilter requestLoggingFilter, CustomUserDetailsService customUserDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(RequestLoggingFilter requestLoggingFilter, CustomUserDetailsService customUserDetailsService,
+                          JwtAuthenticationFilter jwtAuthenticationFilter, CustomAuthenticationEntryPoint authenticationEntryPoint,
+                          CustomAccessDeniedHandler accessDeniedHandler) {
+
         this.requestLoggingFilter = requestLoggingFilter;
         this.customUserDetailsService = customUserDetailsService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.authenticationEntryPoint = authenticationEntryPoint;
+        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
         http
+
                 .authenticationManager(authenticationManager)
                 .csrf(csrf -> csrf.disable())
                 .httpBasic(Customizer.withDefaults())
@@ -42,11 +54,14 @@ public class SecurityConfig {
                 .addFilterBefore(requestLoggingFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/auth/login", "/customer", "/orderItem/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/login", "/customer", "/auth/refresh", "/auth/logout", "/auth/login", "/orderItem/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/products/**", "/public/**", "/orders/**", "/orderItem/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/customer").hasRole("ADMIN")
                         .anyRequest().authenticated()
-                );
+                )
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler));
         return http.build();
     }
     @Bean
